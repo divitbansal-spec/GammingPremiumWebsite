@@ -1,0 +1,199 @@
+index.html
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>DivtIndia' Gaming Arcade</title>
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@500;700&family=Roboto:wght@400;500&display=swap" rel="stylesheet">
+<style>
+/* ---------- ULTRA MODERN NEON/GLASS STYLE ---------- */
+*{margin:0;padding:0;box-sizing:border-box;font-family:'Roboto',sans-serif;transition:0.4s;}
+body{background: linear-gradient(135deg,#0f0c29,#302b63,#24243e);color:#eee;min-height:100vh;}
+header{display:flex;justify-content:space-between;align-items:center;padding:15px 30px;background: rgba(255,255,255,0.05);backdrop-filter: blur(15px);box-shadow:0 8px 30px rgba(0,0,0,0.5);border-bottom:1px solid rgba(255,255,255,0.2);}
+header h1{font-family:'Orbitron',sans-serif;font-size:28px;color:#0ff;letter-spacing:1px;text-shadow: 0 0 12px #0ff;}
+header button{padding:8px 15px;margin-left:10px;border:none;border-radius:12px;background: linear-gradient(90deg,#ff00cc,#3333ff);color:white;font-weight:bold;cursor:pointer;box-shadow:0 4px 15px rgba(0,0,0,0.4);transition:0.3s;}
+header button:hover{transform: scale(1.1);box-shadow:0 6px 20px rgba(0,0,0,0.6);}
+
+.grid{display:grid;grid-template-columns: repeat(auto-fill,minmax(220px,1fr));gap:25px;padding:20px;}
+
+.game-card{background: rgba(255,255,255,0.05);border-radius:25px;overflow:hidden;box-shadow:0 10px 35px rgba(0,0,0,0.7);text-align:center;cursor:pointer;position:relative;transition:0.4s;backdrop-filter: blur(5px);}
+.game-card:hover{transform: scale(1.08) rotateX(2deg);box-shadow:0 15px 45px rgba(0,0,0,0.9);}
+.game-card img{width:100%;height:180px;object-fit:cover;border-bottom:1px solid rgba(255,255,255,0.2);transition:0.3s;}
+.game-card h3{margin:10px 0;font-family:'Orbitron',sans-serif;color:#0ff;text-shadow:0 0 10px #0ff;}
+.game-card a, .game-card button{display:inline-block;margin:5px 5px 10px 5px;padding:6px 12px;border-radius:12px;font-weight:bold;text-decoration:none;color:white;transition:0.3s;}
+.download-btn{background: linear-gradient(90deg,#00ff7f,#00bfff);}
+.download-btn:hover{transform:scale(1.1);box-shadow:0 6px 20px rgba(0,255,255,0.7);}
+.play-btn{background: linear-gradient(90deg,#ff7f50,#ff1493);}
+.play-btn:hover{transform:scale(1.1);box-shadow:0 6px 20px rgba(255,20,147,0.7);}
+.ai-btn{background: linear-gradient(90deg,#ffff00,#ffa500);}
+.ai-btn:hover{transform:scale(1.1);box-shadow:0 6px 20px rgba(255,255,0,0.7);}
+
+.modal{display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.85);backdrop-filter: blur(8px);justify-content:center;align-items:center;z-index:1000;}
+.modal-content{background: rgba(0,0,0,0.6);padding:25px;border-radius:25px;width:450px;max-width:90%;position:relative;box-shadow:0 12px 50px rgba(0,0,0,0.9);animation:fadeIn 0.5s;color:#fff;}
+@keyframes fadeIn{from{opacity:0;transform:translateY(-50px);}to{opacity:1;transform:translateY(0);}}
+.close{position:absolute;top:12px;right:12px;font-size:24px;cursor:pointer;font-weight:bold;color:#fff;}
+input{width:100%;padding:10px;margin:5px 0;border-radius:12px;border:none;outline:none;background: rgba(255,255,255,0.1);color:#fff;}
+button.plan-btn{margin-top:5px;padding:10px 20px;cursor:pointer;border:none;border-radius:15px;background: linear-gradient(90deg,#ff00ff,#00ffff);color:#000;font-weight:bold;transition:0.3s;}
+button.plan-btn:hover{transform:scale(1.1);box-shadow:0 6px 25px rgba(0,255,255,0.5);}
+.dark-mode{background: linear-gradient(135deg,#000000,#1a1a2e);color:#eee;}
+canvas{border:2px solid #0ff;border-radius:12px;background:#111;margin:0 auto;display:block;}
+.visually-hidden{position:absolute;width:1px;height:1px;margin:-1px;overflow:hidden;clip:rect(0 0 0 0);border:0;}
+.admin-table{width:100%;border-collapse:collapse;color:#fff;margin-top:15px;}
+.admin-table th,.admin-table td{border:1px solid #fff;padding:8px;text-align:center;}
+</style>
+</head>
+<body>
+
+<header id="header">
+<h1>DivtIndia' Gaming Arcade</h1>
+<nav>
+<button id="accountBtn" onclick="openAccountModal()">Account</button>
+<button onclick="toggleDarkMode()">Light/Dark</button>
+<button onclick="openPlans()">Plans</button>
+<button onclick="openAdmin()" id="adminBtn" style="display:none;">Admin Panel</button>
+</nav>
+</header>
+
+<section class="grid" id="gamesGrid">
+<h2 class="visually-hidden">Games List</h2>
+</section>
+
+<!-- ACCOUNT MODAL -->
+<div id="accountModal" class="modal">
+<div class="modal-content">
+<span class="close" onclick="closeAccountModal()">&times;</span>
+<div id="loginSection">
+<h2>Login</h2>
+<input type="email" id="loginEmail" placeholder="Email">
+<input type="password" id="loginPassword" placeholder="Password">
+<button onclick="loginUser()">Login</button>
+<p>Don't have an account? <span class="switch" onclick="showSignup()">Create one</span></p>
+<p id="loginMessage"></p>
+</div>
+<div id="signupSection" style="display:none;">
+<h2>Create Account</h2>
+<input type="text" id="signupName" placeholder="Your Name">
+<input type="email" id="signupEmail" placeholder="Email">
+<input type="password" id="signupPassword" placeholder="Password">
+<button onclick="createAccount()">Sign Up</button>
+<p>Already have an account? <span class="switch" onclick="showLogin()">Login</span></p>
+<p id="signupMessage"></p>
+</div>
+</div>
+</div>
+
+<!-- PLANS MODAL -->
+<div id="plansModal" class="modal">
+<div class="modal-content">
+<span class="close" onclick="closePlans()">&times;</span>
+<h2>Subscription Plans</h2>
+<div>
+<h3>Go (Default)</h3><p>Basic games & AI</p>
+<button class="plan-btn" onclick="requestPlan('Go')">Request Upgrade</button>
+</div>
+<div>
+<h3>Plus</h3><p>More games & priority AI</p>
+<button class="plan-btn" onclick="requestPlan('Plus')">Request Upgrade</button>
+</div>
+<div>
+<h3>Pro</h3><p>All games, full AI & admin support</p>
+<button class="plan-btn" onclick="requestPlan('Pro')">Request Upgrade</button>
+</div>
+</div>
+</div>
+
+<!-- ADMIN PANEL -->
+<div id="adminModal" class="modal">
+<div class="modal-content">
+<span class="close" onclick="closeAdmin()">&times;</span>
+<h2>Admin Panel</h2>
+<div id="adminContent">
+<p>Manage users & subscriptions</p>
+<table class="admin-table">
+<thead><tr><th>Name</th><th>Email</th><th>Plan</th><th>Change Plan</th></tr></thead>
+<tbody id="adminUsersList"></tbody>
+</table>
+</div>
+</div>
+</div>
+
+<!-- AI MODAL -->
+<div id="aiModal" class="modal">
+<div class="modal-content">
+<span class="close" onclick="closeAIModal()">&times;</span>
+<h2 id="aiGameTitle">Game AI Tips</h2>
+<p id="aiContent"></p>
+</div>
+</div>
+
+<!-- PLAYABLE SNAKE MODAL -->
+<div id="snakeModal" class="modal">
+<div class="modal-content">
+<span class="close" onclick="closeSnake()">&times;</span>
+<h2>Snake Game</h2>
+<canvas id="snakeCanvas" width="400" height="400"></canvas>
+<p>Use arrow keys to move the snake. Eat the red squares to grow.</p>
+</div>
+</div>
+
+<script>
+// ---------- USERS & LOGIN ----------
+let users=JSON.parse(localStorage.getItem('users'))||[];
+let currentUser=JSON.parse(localStorage.getItem('currentUser'))||null;
+const adminAccount={name:'Admin',email:'Divitbansal016@gmail.com',password:'Divit142637',plan:'Pro',isAdmin:true};
+
+function openAccountModal(){ document.getElementById('accountModal').style.display='flex'; }
+function closeAccountModal(){ document.getElementById('accountModal').style.display='none'; }
+function showSignup(){ document.getElementById('loginSection').style.display='none'; document.getElementById('signupSection').style.display='block'; }
+function showLogin(){ document.getElementById('signupSection').style.display='none'; document.getElementById('loginSection').style.display='block'; }
+function createAccount(){const name=document.getElementById('signupName').value.trim();const email=document.getElementById('signupEmail').value.trim();const password=document.getElementById('signupPassword').value;if(!name||!email||!password){ document.getElementById('signupMessage').innerText="Fill all fields!"; return; }if(users.find(u=>u.email===email)||(email===adminAccount.email)){ document.getElementById('signupMessage').innerText="Email exists!"; return; }users.push({name,email,password,plan:'Go',isAdmin:false});localStorage.setItem('users',JSON.stringify(users));document.getElementById('signupMessage').innerText="Account created! Login now.";document.getElementById('signupName').value=''; document.getElementById('signupEmail').value=''; document.getElementById('signupPassword').value='';}
+function loginUser(){const email=document.getElementById('loginEmail').value.trim();const password=document.getElementById('loginPassword').value;let user=(email===adminAccount.email && password===adminAccount.password)?adminAccount:users.find(u=>u.email===email && u.password===password);if(user){ currentUser=user; localStorage.setItem('currentUser',JSON.stringify(currentUser)); closeAccountModal(); updateHeaderAfterLogin(); } else{ document.getElementById('loginMessage').innerText="Incorrect email or password!"; }}
+function logoutUser(){ currentUser=null; localStorage.removeItem('currentUser'); updateHeaderAfterLogin(); }
+function updateHeaderAfterLogin(){ const accountBtn=document.getElementById('accountBtn'); const adminBtn=document.getElementById('adminBtn'); if(currentUser){ accountBtn.innerHTML=`Hello, ${currentUser.name} | <span onclick="logoutUser()" style="cursor:pointer;color:red;">Logout</span>`; adminBtn.style.display=currentUser.isAdmin?'inline-block':'none'; } else{ accountBtn.innerHTML='Account'; adminBtn.style.display='none'; }
+
+// ---------- DARK MODE ----------
+function toggleDarkMode(){ document.body.classList.toggle('dark-mode'); document.getElementById('header').classList.toggle('dark-mode'); }
+
+// ---------- PLANS ----------
+function openPlans(){ document.getElementById('plansModal').style.display='flex'; }
+function closePlans(){ document.getElementById('plansModal').style.display='none'; }
+function requestPlan(plan){ if(!currentUser){ alert('Login first!'); return; } alert(`Request sent to admin to upgrade ${currentUser.name} to ${plan}`); window.open(`mailto:Divitbansal016@gmail.com?subject=Plan Upgrade&body=Upgrade ${currentUser.name} (${currentUser.email}) to ${plan} plan.`)}
+
+// ---------- ADMIN ----------
+function openAdmin(){ if(!currentUser || !currentUser.isAdmin){ alert('Admin only'); return; } document.getElementById('adminModal').style.display='flex'; renderAdminUsers();}
+function closeAdmin(){ document.getElementById('adminModal').style.display='none'; }
+function renderAdminUsers(){ const tbody=document.getElementById('adminUsersList'); tbody.innerHTML=''; users.forEach((u,i)=>{ const tr=document.createElement('tr'); tr.innerHTML=`<td>${u.name}</td><td>${u.email}</td><td id="plan-${i}">${u.plan}</td><td><button onclick="changePlan(${i},'Go')">Go</button><button onclick="changePlan(${i},'Plus')">Plus</button><button onclick="changePlan(${i},'Pro')">Pro</button></td>`; tbody.appendChild(tr);});}
+function changePlan(index,plan){ users[index].plan=plan; localStorage.setItem('users',JSON.stringify(users)); renderAdminUsers(); alert('Plan updated!'); }
+
+// ---------- AI ----------
+function openAIModal(game){ document.getElementById('aiGameTitle').innerText=`${game.name} AI Tips`; document.getElementById('aiContent').innerHTML=game.ai.map((t,i)=>`${i+1}. ${t}`).join('<br>'); document.getElementById('aiModal').style.display='flex'; }
+function closeAIModal(){ document.getElementById('aiModal').style.display='none'; }
+
+// ---------- GAMES DATA ----------
+const games=[
+{name:'Snake', img:'https://upload.wikimedia.org/wikipedia/commons/5/5a/Snake_and_apple.svg', apk:'#', web:'#', ai:["Eat the red squares to grow","Avoid hitting walls or yourself","Plan turns ahead"],play:true},
+{name:'Subway Surfers', img:'https://upload.wikimedia.org/wikipedia/en/0/04/Subway_Surfers.png', apk:'#', web:'#', ai:["Use hoverboards","Collect coins","Avoid trains"]},
+{name:'Temple Run 2', img:'https://upload.wikimedia.org/wikipedia/en/f/f6/Temple_Run_2.jpg', apk:'#', web:'#', ai:["Tilt to turn","Use power-ups","Avoid obstacles"]},
+{name:'Candy Crush Saga', img:'https://upload.wikimedia.org/wikipedia/en/5/5c/Candy_Crush_Saga_logo.png', apk:'#', web:'#', ai:["Match special candies","Plan moves","Focus on objectives"]},
+{name:'Among Us', img:'https://upload.wikimedia.org/wikipedia/en/9/9a/Among_Us_cover_art.jpg', apk:'#', web:'#', ai:["Observe players","Use security cameras","Communicate carefully"]},
+{name:'Clash of Clans', img:'https://upload.wikimedia.org/wikipedia/en/1/10/Clash_of_Clans_Logo.png', apk:'#', web:'#', ai:["Upgrade defenses","Plan attacks","Join a clan"]},
+{name:'Pokémon GO', img:'https://upload.wikimedia.org/wikipedia/en/9/99/Pokémon_GO_logo.png', apk:'#', web:'#', ai:["Catch Pokémon","Use incense wisely","Participate in raids"]},
+];
+
+function renderGames(){ const grid=document.getElementById('gamesGrid'); grid.innerHTML=''; games.forEach(game=>{ const card=document.createElement('div'); card.className='game-card'; card.innerHTML=`<img src="${game.img}" alt="${game.name}"><h3>${game.name}</h3>${game.play?`<button class="play-btn" onclick="openSnake()">Play Web</button>`:`<a class="play-btn" href="${game.web}" target="_blank">Play Web</a>`}<a class="download-btn" href="${game.apk}" target="_blank">Download APK</a><button class="ai-btn" onclick='openAIModal(${JSON.stringify(game)})'>AI Tips</button>`; grid.appendChild(card);});}
+renderGames();
+
+// ---------- PLAYABLE SNAKE ----------
+let snake,food,direction,snakeInterval;
+function openSnake(){ document.getElementById('snakeModal').style.display='flex'; startSnakeGame();}
+function closeSnake(){ document.getElementById('snakeModal').style.display='none'; clearInterval(snakeInterval);}
+function startSnakeGame(){snake=[{x:8,y:8}];direction={x:0,y:0};food={x:Math.floor(Math.random()*20),y:Math.floor(Math.random()*20)};document.addEventListener('keydown',changeDir);snakeInterval=setInterval(updateSnake,150);}
+function changeDir(e){switch(e.key){case"ArrowUp":if(direction.y===1)break;direction={x:0,y:-1};break;case"ArrowDown":if(direction.y===-1)break;direction={x:0,y:1};break;case"ArrowLeft":if(direction.x===1)break;direction={x:-1,y:0};break;case"ArrowRight":if(direction.x===-1)break;direction={x:1,y:0};break;}}
+function updateSnake(){const canvas=document.getElementById('snakeCanvas');const ctx=canvas.getContext('2d');ctx.fillStyle="#111";ctx.fillRect(0,0,400,400);snake.forEach(s=>{ctx.fillStyle="#0ff";ctx.fillRect(s.x*20,s.y*20,20,20);});ctx.fillStyle="#f00";ctx.fillRect(food.x*20,food.y*20,20,20);let head={x:snake[0].x+direction.x,y:snake[0].y+direction.y};if(head.x<0||head.y<0||head.x>=20||head.y>=20||snake.some(s=>s.x===head.x&&s.y===head.y)){clearInterval(snakeInterval);alert("Game Over");return;}snake.unshift(head);if(head.x===food.x&&head.y===food.y){food={x:Math.floor(Math.random()*20),y:Math.floor(Math.random()*20)};}else{snake.pop();}
+
+}}
+</script>
+</body>
+</html>
